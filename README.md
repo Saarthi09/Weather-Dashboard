@@ -1,62 +1,75 @@
 # Weather CLI
 
-A simple command-line weather application built with Python using the OpenWeatherMap API.
+A command-line weather app in Python. Type a city and get its current weather. **It works straight after cloning, with no API key needed.**
 
-It retrieves the current weather for a user-entered city and displays key information such as temperature, weather conditions, wind speed, and daily minimum and maximum temperatures.
+```
+$ python weather.py
+No OPENWEATHER_API_KEY found, using Open-Meteo (no key needed).
+Enter city (blank to quit): Toronto
+Retrieving weather for Toronto
+City: Toronto, CA
+Temperature: 12.1°C (feels like 10.4°C)
+Condition: light rain
+Wind speed: 4.2 m/s
+Max temp: 14.0°C
+Min temp: 9.8°C
+Enter city (blank to quit): Atlantis
+Retrieving weather for Atlantis
+City not found, try again.
+```
 
 ## Features
 
-- Search weather by city
-- Current temperature and "feels like" temperature
-- Weather description
-- Wind speed
-- Daily minimum and maximum temperatures
-- Metric units (°C)
+- Current temperature and "feels like" temperature in °C, a weather description, wind speed, and the day's min/max
+- Two data sources behind one interface:
+  - **[Open-Meteo](https://open-meteo.com/)** by default: free, no sign-up, no key
+  - **[OpenWeatherMap](https://openweathermap.org/current)** when you set an API key
+- Look up as many cities as you like in one session; press Enter on a blank line to quit
+- Clear messages for an unknown city, a rejected API key, or no internet connection
+- Any API key is read from a `.env` file, so it is never hardcoded or committed
 
-## Tech Stack
+## Quick start
 
-- Python
-- OpenWeatherMap API
-- `urllib`
-- `json`
-- `python-dotenv`
-
-## Setup
-
-1. Clone the repository.
-2. Install the required package:
+Requires Python 3.
 
 ```bash
-pip install python-dotenv
-```
-
-3. Create a `.env` file in the project directory:
-
-```env
-OPENWEATHER_API_KEY=your_api_key_here
-```
-
-4. Run the program:
-
-```bash
+git clone https://github.com/Saarthi09/Weather-Dashboard.git
+cd Weather-Dashboard
+pip install -r requirements.txt
 python weather.py
 ```
 
-## Example
+### Optional: use OpenWeatherMap
+
+1. Get a free key at [openweathermap.org](https://home.openweathermap.org/users/sign_up).
+2. Run `cp .env.example .env` and put your key in `.env`.
+3. Run `python weather.py`. It prints `Using OpenWeatherMap.`
+
+`.env` is listed in `.gitignore`, so your key stays on your machine.
+
+## How it works
+
+- **Open-Meteo:** the city name goes to Open-Meteo's geocoding API to get latitude and longitude, then a forecast request returns the current conditions and today's min/max. Open-Meteo reports weather as a numeric WMO code, which the app translates into text ("light rain", "overcast", and so on).
+- **OpenWeatherMap:** one request to the current-weather endpoint with `units=metric`.
+- Both sources return the same fields, so the printing code doesn't care which one answered.
+- HTTP requests and JSON parsing use only the standard library (`urllib`, `json`). `python-dotenv` loads the optional key.
+
+## Project structure
 
 ```
-Enter city: Toronto
-
-City: Toronto, CA
-Temperature: 24.8°C (feels like 26.1°C)
-Condition: scattered clouds
-Wind speed: 4.12
-Max temp: 26.0
-Min temp: 23.5
+.
+├── weather.py         # The app
+├── requirements.txt   # python-dotenv
+├── .env.example       # Template for an optional OpenWeatherMap key
+└── README.md
 ```
 
-## Notes
+## Credits
 
-- Requires an API key from OpenWeatherMap.
-- Uses the current weather endpoint.
-- The `.env` file is intentionally excluded from version control.
+Weather data from [Open-Meteo](https://open-meteo.com/) (free for non-commercial use) and [OpenWeatherMap](https://openweathermap.org/). Location search uses Open-Meteo's geocoding API, which is based on [GeoNames](https://www.geonames.org/).
+
+## Ideas for next steps
+
+- 5-day forecast
+- Choose metric or imperial units
+- A small GUI or web dashboard on top of the same functions
